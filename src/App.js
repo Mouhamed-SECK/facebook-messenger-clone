@@ -1,19 +1,44 @@
 import React, { useState, useEffect } from "react";
+
 import { Button, FormControl, Input, InputLabel } from "@material-ui/core";
+
 import Message from "./Message";
+import firebase from "firebase";
+import db from "./fireabase";
 
 import "./App.css";
+
 const App = () => {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
-  const [userName, setUser] = useState([]);
+  const [userName, setUserName] = useState("");
 
   const sendMessage = (e) => {
     // all the logic to send a message
     e.preventDefault();
-    setMessages([...messages, input]);
+
+    db.collection("messages").add({
+      message: input,
+      username: userName,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    setMessages([...messages, { username: userName, message: input }]);
     setInput("");
   };
+
+  // get Firestore messages
+  useEffect(() => {
+    // Listening for any changing in our firestore and taking a snapshot
+    db.collection("messages")
+      .orderBy("timestamp", "desc")
+      .onSnapshot((snapshot) => {
+        setMessages(snapshot.docs.map((doc) => doc.data()));
+      });
+  }, []);
+
+  useEffect(() => {
+    setUserName(prompt("Enter your name"));
+  }, []);
 
   return (
     <div className="App">
@@ -37,7 +62,7 @@ const App = () => {
 
         {/*DISPLAY MESSAGES  */}
         {messages.map((message) => (
-          <Message text={message} />
+          <Message username={userName} message={message} />
         ))}
       </form>
     </div>
