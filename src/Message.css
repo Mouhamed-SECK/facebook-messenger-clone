@@ -2,6 +2,7 @@
   padding: 10px;
   margin: 10px;
   width: fit-content;
+  font-weight: 300 !important;
 }
 
 .message__user {
@@ -14,4 +15,5 @@
 }
 .message__userCard {
   background-color: #0b81ff !important;
+  color: white !important;
 }
